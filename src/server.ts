@@ -1,5 +1,5 @@
 
-import express from 'express';
+import express, { response } from 'express';
 import { v4 as uuidv4 } from "uuid";
 import cors from "cors"
 
@@ -56,7 +56,7 @@ app.get("/show", (request:any,response:any)=> {
 })
 
 //Rota pra login, verificador de senha
-app.get("/login", (request:any,response:any)=> {
+app.post("/login", (request:any,response:any)=> {
     const { email, password }:any = request.body;
 
     const dataUser = customerDB.find( data => data.email.includes(email))
@@ -65,7 +65,7 @@ app.get("/login", (request:any,response:any)=> {
     console.log(dataUser)
     console.log(confirmPasswortd)
 
-    return response.json()
+    return response.status(201).send()
 })
 
 //Rota pra atualização do nome
@@ -88,6 +88,19 @@ app.put("/account/:email", (request,response)=> {
     return response.json(customerDB);
 });
 
+//Rota para deletar uma conta
+app.delete("/account/:email", (request, response)=>{
+    const {email} = request.params
+
+    //descobrindo o index do usuário no array que possui todos os usuários
+    const indexUser = customerDB.map((user:any)=>user.email).indexOf(email)
+
+    //deletando o usuário
+    customerDB.splice(indexUser, 1)
+
+    
+    return response.json(customerDB);
+})
 
 //Porta da aplicação Localjost:3333
 app.listen(3333, () => console.log('Server is running!'));
