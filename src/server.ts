@@ -62,10 +62,13 @@ app.post("/login", (request:any,response:any)=> {
     const dataUser = customerDB.find( data => data.email.includes(email))
     const confirmPasswortd = dataUser?.password === password
 
-    console.log(dataUser)
-    console.log(confirmPasswortd)
+    if(confirmPasswortd){
+        return response.status(201).send()
+    } else {
+        return response.status(400).send()
+    }
 
-    return response.status(201).send()
+    
 })
 
 //Rota pra atualização do nome
