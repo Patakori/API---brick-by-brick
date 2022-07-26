@@ -2,6 +2,8 @@
 import express, { response } from 'express';
 import { v4 as uuidv4 } from "uuid";
 import cors from "cors"
+import {hash, compare} from "bcrypt"
+import { sign } from 'jsonwebtoken';
 
 interface IPropsDB { id: string; name: string; email: string; password:string }[]
 
@@ -36,14 +38,16 @@ function verifyExistAccount(request:any, response:any, next:any){
 }
 
 //Rota para criar a conta
-app.post("/account", verifyExistAccount, (request, response)=>{
+app.post("/account", verifyExistAccount, async (request, response)=>{
     const { email, name, password }:any = request.body;
+
+    const passwordHash = await hash(password, 8)
 
     customerDB.push({
         id:uuidv4(),
         name,
         email,
-        password
+        password: passwordHash
     });
 
     return response.status(201).send()
@@ -56,16 +60,52 @@ app.get("/show", (request:any,response:any)=> {
 })
 
 //Rota pra login, verificador de senha
-app.post("/login", (request:any,response:any)=> {
+app.post("/login", async (request:any ,response:any)=> {
     const { email, password }:any = request.body;
 
     const dataUser = customerDB.find( data => data.email.includes(email))
-    const confirmPasswortd = dataUser?.password === password
+    const confirmPassword = dataUser?.password
+    const passwordMatch = await compare(password, confirmPassword!)
 
-    if(confirmPasswortd){
-        return response.status(201).send()
+    const token = sign({}, "a1df64cba1f711410b6a4a86942971cb", {
+        subject: dataUser?.id,
+        expiresIn: "1d",
+    } )
+    
+    const tokenReturn = {
+        token,
+        user: {
+            name: dataUser?.name,
+            email: dataUser?.email,
+        },
+    }
+
+    if(passwordMatch){
+        return response.status(201).json(tokenReturn)
     } else {
-        return response.status(400).send()
+        return response.status(400).json({error: 'ERRORRRRRRRRRRRR'})
+    }
+
+    
+})
+
+//Rota pra login, verificador de senha
+app.get("/user", async (request:any ,response:any)=> {
+    const { token }:any = request.header;
+
+    const dataUser = customerDB.find( data => data.email.includes(email))
+    
+    const userReturn = {
+        user: {
+            name: dataUser?.name,
+            email: dataUser?.email,
+        },
+    }
+
+    if(userReturn){
+        return response.status(201).json(userReturn)
+    } else {
+        return response.status(400).json({error: 'ERRORRRRRRRRRRRR'})
     }
 
     
