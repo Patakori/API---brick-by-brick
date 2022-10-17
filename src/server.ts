@@ -3,11 +3,10 @@ import express, { response } from 'express';
 import { v4 as uuidv4 } from "uuid";
 import cors from "cors"
 import {hash, compare} from "bcrypt"
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { prisma } from './database/prismaClient';
-
-
-interface IPropsDB { id: string; name: string; email: string; password:string }[]
+import dayjs from 'dayjs'
+import jwt_decode from "jwt-decode";
 
 const app = express()
 
@@ -18,13 +17,15 @@ app.use(cors({
 
 app.use(express.json());
 
-//Banco de dados
-
-const customerDB: IPropsDB[]  = [];
-
 //Middleware
 
-//Verifica se a conta já existe
+// Middleware Errors
+async function verifyErrors(error: any, request:any, response:any, next:any){
+    console.log("aqui no miderros", error)
+    response.sendStatus(500)
+}
+
+// Middleware Verifica se a conta já existe
 async function verifyExistAccount(request:any, response:any, next:any){
     const {email}:any = request.body
 
@@ -47,6 +48,66 @@ async function verifyExistAccount(request:any, response:any, next:any){
     return next()
 }
 
+//middleware para ver se o token é valido
+async function validateToken(request:any, response:any, next:any){
+    const authHeader = request.headers.authorization
+
+    if(!authHeader){
+        return response.status(401).json({error: 'Token não existe'})
+    }
+
+    const [,token] = authHeader.split(" ")
+    console.log(token)
+
+    try{
+        const {sub} = verify(token,"a1df64cba1f711410b6a4a86942971cb")
+        return next()
+    } catch(err){
+        return response.status(401).json({error: 'Token inválido'})
+    }
+}
+    
+// Verificando se o token existente no cookie é válido
+app.get("/validateToken", async (request:any, response:any)=>{
+    const authHeader = request.headers.authorization
+
+    if(!authHeader){
+        return response.status(401).json({error: 'Token não existe'})
+    }
+
+    const [,token] = authHeader.split(" ")
+    console.log(token)
+
+    try{
+        const validate = verify(token,"a1df64cba1f711410b6a4a86942971cb")
+        if(validate){
+            return response.status(201).send("foii")
+        }
+        
+    } catch(err){
+        return response.status(401).send("Token inválido")
+    }
+})
+
+//Middleware para carregar novamento os dados do user
+app.get("/recoveryUser", async (request:any,response:any)=> {
+    const authHeader = request.headers.authorization
+    const [,token] = authHeader.split(" ")
+    const decoded:any = jwt_decode(token);
+    const emailecoded = decoded.user.email
+    const dataUser = await prisma.user.findUnique({
+        where:{
+            email: emailecoded
+        }
+    })
+
+    const user = {
+        name: dataUser?.name,
+        email: dataUser?.email,
+    }
+
+    return response.json(user)
+})
 
 
 //Rota para criar a conta
@@ -54,13 +115,6 @@ app.post("/account", verifyExistAccount, async (request, response)=>{
     const { email, name, password }:any = request.body;
 
     const passwordHash = await hash(password, 8)
-
-    // customerDB.push({
-    //     id:uuidv4(),
-    //     name,
-    //     email,
-    //     password: passwordHash
-    // });
 
     const user = await prisma.user.create({
         data:{
@@ -84,7 +138,6 @@ app.get("/show", async (request:any,response:any)=> {
 app.post("/login", async (request:any ,response:any)=> {
     const { email, password }:any = request.body;
 
-    // const dataUser = customerDB.find( data => data.email.includes(email))
     const dataUser = await prisma.user.findUnique({
         where:{
             email
@@ -108,50 +161,76 @@ app.post("/login", async (request:any ,response:any)=> {
         },
     }, "a1df64cba1f711410b6a4a86942971cb", {
         subject: dataUser?.id,
-        expiresIn: "1d",
+        expiresIn: "60s",
         
     } )
 
+    const refreshTokenUser = await prisma.refreshToken.findUnique({
+        where:{
+            userEmail: email,
+        }
+    })
 
-    return response.status(201).json(token)
+    if(!refreshTokenUser){
+        const expiresIn = dayjs().add(1, 'day').unix()
+
+        const refreshToken = await prisma.refreshToken.create({
+            data:{
+                userEmail: dataUser.email,
+                expiresIn: expiresIn
+            }
+        })
+        return response.status(201).json({token, refreshToken})
+    }
+
+    return response.status(201).json({token, refreshTokenUser})
 
 })
 
-//?????????
-app.get("/user", async (request:any ,response:any)=> {
-    const { auth }:any = request.headers.authorization;
+//Refresh token
+app.post("/refreshToken", async (request:any ,response:any)=> {
+    const {refresh_token} = request.body
+    console.log("refresh_token",refresh_token)
 
-    const [bearer, token] = auth.split("")
+    const refreshTokenUser = await prisma.refreshToken.findUnique({
+        where:{
+            userEmail: refresh_token,
+        }
+    })
 
-    console.log("tokennnnnnn", token)
-
-    // const dataUser = customerDB.find( data => data.email.includes(email))
+    if(!refreshTokenUser){
+        return response.status(400).json({error: 'Refresh Token Inválido'})
+    }
     
-    // const userReturn = { 
-    //     user: {
-    //         name: dataUser?.name,
-    //         email: dataUser?.email,
-    //     },
-    // }
+    const dataUser = await prisma.user.findUnique({
+        where:{
+            email: refreshTokenUser?.userEmail,
+        }
+    })
 
-    // if(userReturn){
-    //     return response.status(201).json(userReturn)
-    // } else {
-    //     return response.status(400).json({error: 'ERRORRRRRRRRRRRR'})
-    // }
+    const token = sign({
+        user: {
+            name: dataUser?.name,
+            email: dataUser?.email,
+        },
+    }, "a1df64cba1f711410b6a4a86942971cb", {
+        subject: refreshTokenUser?.userEmail,
+        expiresIn: "60s",
+        
+    } )
 
-    
+    return response.status(201).json({token})
+
 })
 
 //Rota pra atualização do nome
-app.put("/account/:email", async (request,response)=> {
+app.put("/account/:email", validateToken, async (request,response)=> {
     //Params pra conseguir pesquisar na rota do put
     const { email } = request.params;
     //Nome que vem do frontend
     const { name } = request.body;
 
     //Procurando o objeto que contem o perfil do usuário pelo e-mail
-    // const findEmail = customerDB.find((data) => data.email === email)
     const dataUSer = await prisma.user.update({
         where:{
             email
@@ -175,16 +254,12 @@ app.put("/account/:email", async (request,response)=> {
 app.delete("/account/:email", async (request, response)=>{
     const {email} = request.params
 
-    //descobrindo o index do usuário no array que possui todos os usuários
-    // const indexUser = customerDB.map((user:any)=>user.email).indexOf(email)
-
     //deletando o usuário
     const dataUSer = await prisma.user.delete({
         where:{
             email
         },
     })
-    // customerDB.splice(indexUser, 1)
 
     
     return response.status(201).json(dataUSer)
