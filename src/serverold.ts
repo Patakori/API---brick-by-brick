@@ -110,7 +110,7 @@ app.get("/recoveryUser", async (request:any,response:any)=> {
 })
 
 
-//Rota para criar a conta
+//Rota para criar a conta - ok
 app.post("/account", verifyExistAccount, async (request, response)=>{
     const { email, name, password }:any = request.body;
 

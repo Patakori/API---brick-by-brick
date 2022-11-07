@@ -1,10 +1,13 @@
 import { Router } from 'express'
 import { CreateClientController } from './modules/useCases/createClient/CreateClientController'
+import { ShowAllClientController } from './modules/useCases/showAllClient/showAllClientController'
 
 const routes = Router()
 
-const createClienController = new CreateClientController()
+const createClientController = new CreateClientController()
+const showAllClientController = new ShowAllClientController()
 
-routes.post("/account/", createClienController.handle)
+routes.post("/account/", createClientController.handle)
+routes.get("/show", showAllClientController.handle)
 
 export { routes }

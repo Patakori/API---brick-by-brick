@@ -1,14 +1,14 @@
 import {prisma} from "../../../database/prismaClient"
 import { IClient } from "../../../entities/IClient"
 import {hash, compare} from "bcrypt"
-import { PrismaClientRepository } from "../../../repository/PrismaClientRepository"
+import { CreateClientRepository } from "./CreateClientRepository"
 
 export class CreateClientUseCase {
 
   async execute({password, username, email}:IClient){
 
   const passwordHash = await hash(password, 8)
-  const repo = new PrismaClientRepository(prisma)
+  const repo = new CreateClientRepository(prisma)
   const verifyEmail = await repo.get(email)
 
   const clientObject:IClient = {
