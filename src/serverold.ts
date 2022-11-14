@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import cors from "cors"
 import {hash, compare} from "bcrypt"
 import { sign, verify } from 'jsonwebtoken';
-import { prisma } from './database/prismaClient';
+import { prisma } from './external/database/prismaClient';
 import dayjs from 'dayjs'
 import jwt_decode from "jwt-decode";
 
@@ -68,28 +68,28 @@ async function validateToken(request:any, response:any, next:any){
 }
     
 // Verificando se o token existente no cookie é válido
-app.get("/validateToken", async (request:any, response:any)=>{
-    const authHeader = request.headers.authorization
+// app.get("/validateToken", async (request:any, response:any)=>{
+//     const authHeader = request.headers.authorization
 
-    if(!authHeader){
-        return response.status(401).json({error: 'Token não existe'})
-    }
+//     if(!authHeader){
+//         return response.status(401).json({error: 'Token não existe'})
+//     }
 
-    const [,token] = authHeader.split(" ")
-    console.log(token)
+//     const [,token] = authHeader.split(" ")
+//     console.log(token)
 
-    try{
-        const validate = verify(token,"a1df64cba1f711410b6a4a86942971cb")
-        if(validate){
-            return response.status(201).send("foii")
-        }
+//     try{
+//         const validate = verify(token,"a1df64cba1f711410b6a4a86942971cb")
+//         if(validate){
+//             return response.status(201).send("foii")
+//         }
         
-    } catch(err){
-        return response.status(401).send("Token inválido")
-    }
-})
+//     } catch(err){
+//         return response.status(401).send("Token inválido")
+//     }
+// })
 
-//Middleware para carregar novamento os dados do user
+//rota para carregar novamento os dados do user
 app.get("/recoveryUser", async (request:any,response:any)=> {
     const authHeader = request.headers.authorization
     const [,token] = authHeader.split(" ")
@@ -111,81 +111,81 @@ app.get("/recoveryUser", async (request:any,response:any)=> {
 
 
 //Rota para criar a conta - ok
-app.post("/account", verifyExistAccount, async (request, response)=>{
-    const { email, name, password }:any = request.body;
+// app.post("/account", verifyExistAccount, async (request, response)=>{
+//     const { email, name, password }:any = request.body;
 
-    const passwordHash = await hash(password, 8)
+//     const passwordHash = await hash(password, 8)
 
-    const user = await prisma.user.create({
-        data:{
-            name,
-            email,
-            password: passwordHash
-        }
-    })
-    return response.status(201).send(user)
-})
+//     const user = await prisma.user.create({
+//         data:{
+//             name,
+//             email,
+//             password: passwordHash
+//         }
+//     })
+//     return response.status(201).send(user)
+// })
 
-//Rota para ver a conta
-app.get("/show", async (request:any,response:any)=> {
+//Rota para ver a conta - ok
+// app.get("/show", async (request:any,response:any)=> {
 
-    const showAll = await prisma.user.findMany({})
+//     const showAll = await prisma.user.findMany({})
 
-    return response.json(showAll)
-})
+//     return response.json(showAll)
+// })
 
 //Rota pra login, verificador de senha
-app.post("/login", async (request:any ,response:any)=> {
-    const { email, password }:any = request.body;
+// app.post("/login", async (request:any ,response:any)=> {
+//     const { email, password }:any = request.body;
 
-    const dataUser = await prisma.user.findUnique({
-        where:{
-            email
-        }
-    })
+//     const dataUser = await prisma.user.findUnique({
+//         where:{
+//             email
+//         }
+//     })
 
-    if(!dataUser){
-        return response.status(400).json({error: 'Esse e-mail ou senha não existe'})
-    }
-    const confirmPassword = dataUser?.password
-    const passwordMatch = await compare(password, confirmPassword!)
+//     if(!dataUser){
+//         return response.status(400).json({error: 'Esse e-mail ou senha não existe'})
+//     }
+//     const confirmPassword = dataUser?.password
+//     const passwordMatch = await compare(password, confirmPassword!)
 
-    if(!passwordMatch){
-        return response.status(400).json({error: 'Esse e-mail ou senha não existe'})
-    }
+//     if(!passwordMatch){
+//         return response.status(400).json({error: 'Esse e-mail ou senha não existe'})
+//     }
 
-    const token = sign({
-        user: {
-            name: dataUser?.name,
-            email: dataUser?.email,
-        },
-    }, "a1df64cba1f711410b6a4a86942971cb", {
-        subject: dataUser?.id,
-        expiresIn: "60s",
+//     const token = sign({
+//         user: {
+//             name: dataUser?.name,
+//             email: dataUser?.email,
+//         },
+//     }, "a1df64cba1f711410b6a4a86942971cb", {
+//         subject: dataUser?.id,
+//         expiresIn: "60s",
         
-    } )
+//     } )
 
-    const refreshTokenUser = await prisma.refreshToken.findUnique({
-        where:{
-            userEmail: email,
-        }
-    })
+//     const refreshTokenUser = await prisma.refreshToken.findUnique({
+//         where:{
+//             userEmail: email,
+//         }
+//     })
 
-    if(!refreshTokenUser){
-        const expiresIn = dayjs().add(1, 'day').unix()
+//     if(!refreshTokenUser){
+//         const expiresIn = dayjs().add(1, 'day').unix()
 
-        const refreshToken = await prisma.refreshToken.create({
-            data:{
-                userEmail: dataUser.email,
-                expiresIn: expiresIn
-            }
-        })
-        return response.status(201).json({token, refreshToken})
-    }
+//         const refreshToken = await prisma.refreshToken.create({
+//             data:{
+//                 userEmail: dataUser.email,
+//                 expiresIn: expiresIn
+//             }
+//         })
+//         return response.status(201).json({token, refreshToken})
+//     }
 
-    return response.status(201).json({token, refreshTokenUser})
+//     return response.status(201).json({token, refreshTokenUser})
 
-})
+// })
 
 //Refresh token
 app.post("/refreshToken", async (request:any ,response:any)=> {

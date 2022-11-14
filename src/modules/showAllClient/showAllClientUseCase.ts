@@ -1,5 +1,5 @@
 import { ShowAllClientRepository } from "./showAllClientRepository";
-import { prisma } from "../../../database/prismaClient"
+import { prisma } from "../../external/database/prismaClient"
 
 export class ShowAllClientUseCase {
   async execute(){

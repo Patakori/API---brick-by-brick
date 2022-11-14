@@ -1,5 +1,5 @@
-import {prisma} from "../../../database/prismaClient"
-import { IClient } from "../../../entities/IClient"
+import {prisma} from "../../external/database/prismaClient"
+import { IClient } from "../../entities/IClient"
 import {hash, compare} from "bcrypt"
 import { CreateClientRepository } from "./CreateClientRepository"
 

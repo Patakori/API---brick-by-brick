@@ -1,12 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { IClient } from "../../../entities/IClient";
+import { IClient } from "../../entities/IClient";
+import { ICreateClientRepository } from "../../external/repository/Interfaces"
 
-interface CreateClientRepositorys {
-  add:(client:IClient) => Promise<void>
-  get:(reference: string) => Promise<IClient>
-}
-
-export class CreateClientRepository implements CreateClientRepositorys {
+export class CreateClientRepository implements ICreateClientRepository {
   constructor (private readonly prisma: PrismaClient){}
 
   async get (reference: string): Promise<any> {
