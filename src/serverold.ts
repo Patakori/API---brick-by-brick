@@ -90,24 +90,24 @@ async function validateToken(request:any, response:any, next:any){
 // })
 
 //rota para carregar novamento os dados do user
-app.get("/recoveryUser", async (request:any,response:any)=> {
-    const authHeader = request.headers.authorization
-    const [,token] = authHeader.split(" ")
-    const decoded:any = jwt_decode(token);
-    const emailecoded = decoded.user.email
-    const dataUser = await prisma.user.findUnique({
-        where:{
-            email: emailecoded
-        }
-    })
+// app.get("/recoveryUser", async (request:any,response:any)=> {
+//     const authHeader = request.headers.authorization
+//     const [,token] = authHeader.split(" ")
+//     const decoded:any = jwt_decode(token);
+//     const emailecoded = decoded.user.email
+//     const dataUser = await prisma.user.findUnique({
+//         where:{
+//             email: emailecoded
+//         }
+//     })
 
-    const user = {
-        name: dataUser?.name,
-        email: dataUser?.email,
-    }
+//     const user = {
+//         name: dataUser?.name,
+//         email: dataUser?.email,
+//     }
 
-    return response.json(user)
-})
+//     return response.json(user)
+// })
 
 
 //Rota para criar a conta - ok

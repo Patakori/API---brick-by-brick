@@ -22,7 +22,6 @@ export class LoginUseCase {
     const repo = new LoginRepository( prisma )
 
     const client: IClient = await repo.findEmailUser(email)
-    console.log("aquiii", client)
     const refreshToken: IRefreshToken = await repo.findEmailRefreshToken(email)
 
     if(!client){
