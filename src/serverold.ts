@@ -188,40 +188,40 @@ async function validateToken(request:any, response:any, next:any){
 // })
 
 //Refresh token
-app.post("/refreshToken", async (request:any ,response:any)=> {
-    const {refresh_token} = request.body
-    console.log("refresh_token",refresh_token)
+// app.post("/refreshToken", async (request:any ,response:any)=> {
+//     const {refresh_token} = request.body
+//     console.log("refresh_token",refresh_token)
 
-    const refreshTokenUser = await prisma.refreshToken.findUnique({
-        where:{
-            userEmail: refresh_token,
-        }
-    })
+//     const refreshTokenUser = await prisma.refreshToken.findUnique({
+//         where:{
+//             userEmail: refresh_token,
+//         }
+//     })
 
-    if(!refreshTokenUser){
-        return response.status(400).json({error: 'Refresh Token Inválido'})
-    }
+//     if(!refreshTokenUser){
+//         return response.status(400).json({error: 'Refresh Token Inválido'})
+//     }
     
-    const dataUser = await prisma.user.findUnique({
-        where:{
-            email: refreshTokenUser?.userEmail,
-        }
-    })
+//     const dataUser = await prisma.user.findUnique({
+//         where:{
+//             email: refreshTokenUser?.userEmail,
+//         }
+//     })
 
-    const token = sign({
-        user: {
-            name: dataUser?.name,
-            email: dataUser?.email,
-        },
-    }, "a1df64cba1f711410b6a4a86942971cb", {
-        subject: refreshTokenUser?.userEmail,
-        expiresIn: "60s",
+//     const token = sign({
+//         user: {
+//             name: dataUser?.name,
+//             email: dataUser?.email,
+//         },
+//     }, "a1df64cba1f711410b6a4a86942971cb", {
+//         subject: refreshTokenUser?.userEmail,
+//         expiresIn: "60s",
         
-    } )
+//     } )
 
-    return response.status(201).json({token})
+//     return response.status(201).json({token})
 
-})
+// })
 
 //Rota pra atualização do nome
 app.put("/account/:email", validateToken, async (request,response)=> {
