@@ -7,13 +7,15 @@ interface PropsUpdateClientUseCase{
 }
 
 export class UpdateClientUseCase{
-  async execute({name, email}:PropsUpdateClientUseCase){
+  async execute({email, name}:PropsUpdateClientUseCase){
+    
 
     const repo = new UpdateClientRepository(prisma)
+    
     const toBeUpdated = await repo.update(email, name)
 
     if(toBeUpdated){
-        
+      
       toBeUpdated.name = name
   }
 

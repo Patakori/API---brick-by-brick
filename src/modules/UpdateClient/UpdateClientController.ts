@@ -6,6 +6,8 @@ export class UpdateClientController{
     const { email } = request.params;
     const { name } = request.body;
 
+   
+
     const updateClientUsecase = new UpdateClientUseCase()
 
     const result = await updateClientUsecase.execute({
@@ -13,6 +15,6 @@ export class UpdateClientController{
       name
     })
 
-    return response.json(result)
+    return response.status(200).json(result)
   }
 }

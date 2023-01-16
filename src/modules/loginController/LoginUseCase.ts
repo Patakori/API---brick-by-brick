@@ -22,6 +22,7 @@ export class LoginUseCase {
     const repo = new LoginRepository( prisma )
 
     const client: IClient = await repo.findEmailUser(email)
+    console.log("client", client)
     const refreshToken: IRefreshToken = await repo.findEmailRefreshToken(email)
 
     if(!client){
@@ -37,7 +38,7 @@ export class LoginUseCase {
 
     const token = sign({
       user: {
-          name: client.username,
+          name: client.name,
           email: client.email,
       },
     }, "a1df64cba1f711410b6a4a86942971cb", {

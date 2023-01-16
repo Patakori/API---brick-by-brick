@@ -1,21 +1,17 @@
 
 import express, { response } from 'express';
 import { v4 as uuidv4 } from "uuid";
-import cors from "cors"
+
 import {hash, compare} from "bcrypt"
 import { sign, verify } from 'jsonwebtoken';
 import { prisma } from './external/database/prismaClient';
 import dayjs from 'dayjs'
 import jwt_decode from "jwt-decode";
 
-const app = express()
+// const app = express()
 
-app.use(cors({
-    origin: '*',
-    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
-}))
 
-app.use(express.json());
+// app.use(express.json());
 
 //Middleware
 
@@ -49,23 +45,23 @@ async function verifyExistAccount(request:any, response:any, next:any){
 }
 
 //middleware para ver se o token é valido
-async function validateToken(request:any, response:any, next:any){
-    const authHeader = request.headers.authorization
+// async function validateToken(request:any, response:any, next:any){
+//     const authHeader = request.headers.authorization
 
-    if(!authHeader){
-        return response.status(401).json({error: 'Token não existe'})
-    }
+//     if(!authHeader){
+//         return response.status(401).json({error: 'Token não existe'})
+//     }
 
-    const [,token] = authHeader.split(" ")
-    console.log(token)
+//     const [,token] = authHeader.split(" ")
+//     console.log(token)
 
-    try{
-        const {sub} = verify(token,"a1df64cba1f711410b6a4a86942971cb")
-        return next()
-    } catch(err){
-        return response.status(401).json({error: 'Token inválido'})
-    }
-}
+//     try{
+//         const {sub} = verify(token,"a1df64cba1f711410b6a4a86942971cb")
+//         return next()
+//     } catch(err){
+//         return response.status(401).json({error: 'Token inválido'})
+//     }
+// }
     
 // Verificando se o token existente no cookie é válido
 // app.get("/validateToken", async (request:any, response:any)=>{
@@ -224,46 +220,46 @@ async function validateToken(request:any, response:any, next:any){
 // })
 
 //Rota pra atualização do nome
-app.put("/account/:email", validateToken, async (request,response)=> {
-    //Params pra conseguir pesquisar na rota do put
-    const { email } = request.params;
-    //Nome que vem do frontend
-    const { name } = request.body;
+// app.put("/account/:email", validateToken, async (request,response)=> {
+//     //Params pra conseguir pesquisar na rota do put
+//     const { email } = request.params;
+//     //Nome que vem do frontend
+//     const { name } = request.body;
 
-    //Procurando o objeto que contem o perfil do usuário pelo e-mail
-    const dataUSer = await prisma.user.update({
-        where:{
-            email
-        },
-        data:{
-           name 
-        }
-    })
+//     //Procurando o objeto que contem o perfil do usuário pelo e-mail
+//     const dataUSer = await prisma.user.update({
+//         where:{
+//             email
+//         },
+//         data:{
+//            name 
+//         }
+//     })
 
-    //Como e-mail pode ser nulo, então só vai executar se for verdadeiro
-    if(dataUSer){
+//     //Como e-mail pode ser nulo, então só vai executar se for verdadeiro
+//     if(dataUSer){
         
-        //Pegando o nome do banco deixando ele igual ao nome que veio do frontend assim atualizando
-        dataUSer.name = name
-    }
-    return response.status(201).json(dataUSer)
-    // return response.json(customerDB);
-});
+//         //Pegando o nome do banco deixando ele igual ao nome que veio do frontend assim atualizando
+//         dataUSer.name = name
+//     }
+//     return response.status(201).json(dataUSer)
+//     // return response.json(customerDB);
+// });
 
 //Rota para deletar uma conta
-app.delete("/account/:email", async (request, response)=>{
-    const {email} = request.params
+// app.delete("/account/:email", async (request, response)=>{
+//     const {email} = request.params
 
-    //deletando o usuário
-    const dataUSer = await prisma.user.delete({
-        where:{
-            email
-        },
-    })
+//     //deletando o usuário
+//     const dataUSer = await prisma.user.delete({
+//         where:{
+//             email
+//         },
+//     })
 
     
-    return response.status(201).json(dataUSer)
-})
+//     return response.status(201).json(dataUSer)
+// })
 
 //Porta da aplicação Localjost:3333
-app.listen(3333, () => console.log('Server is running!'));
+// app.listen(3333, () => console.log('Server is running!'));

@@ -17,12 +17,11 @@ export class ValidateTokenUseCase{
     }
 
     const [,token] = authHeader.split(" ")
-    console.log(token)
 
     try{
         const validate = verify(token,"a1df64cba1f711410b6a4a86942971cb")
         if(validate){
-            return response.status(201).send("foii")
+            return response
         }
         
     } catch(err){

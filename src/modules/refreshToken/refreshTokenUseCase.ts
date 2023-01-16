@@ -11,7 +11,6 @@ export class RefreshTokenUseCase{
   async execute({refreshToken}:RefreshTokenProps){
 
     const repo = new RefreshTokenRepository(prisma)
-    console.log("itxaaaaaaaaaaaaaaa", refreshToken)
 
     const findRefreshToken = await repo.findRedreshToken(refreshToken)
 

@@ -4,7 +4,6 @@ export class RefreshTokenRepository{
   constructor (private readonly prisma: PrismaClient){}
 
   async findRedreshToken(refresnToken:string){
-    console.log("laaaaaaaaa", refresnToken)
     return await this.prisma.refreshToken.findUnique({
       where:{
           userEmail: refresnToken,

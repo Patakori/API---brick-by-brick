@@ -11,7 +11,6 @@ export class RecoveryUserController{
       request,
       response
     })
-    console.log("aaaaaaaaaaaaaaaaaaa", result)
     return response.json(result)
   }
   
