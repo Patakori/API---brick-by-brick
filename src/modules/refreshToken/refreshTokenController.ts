@@ -3,16 +3,20 @@ import { RefreshTokenUseCase } from "./refreshTokenUseCase";
 
 export class RefreshTokenController {
   async handle(request: Request, response: Response){
-    const {refreshToken} = request.body
+    try {
+      const {refreshToken} = request.body
 
 
-    const refreshTokenUSeCase = new RefreshTokenUseCase()
-
-    const resultRefreshToken = await refreshTokenUSeCase.execute({
-      refreshToken,
-    })
-
-    return response.status(201).json(resultRefreshToken)
+      const refreshTokenUSeCase = new RefreshTokenUseCase()
+  
+      const resultRefreshToken = await refreshTokenUSeCase.execute({
+        refreshToken,
+      })
+  
+      return response.status(201).json(resultRefreshToken)
+    } catch (error) {
+      console.log("error refreshToken")
+    }
 
   }
 }

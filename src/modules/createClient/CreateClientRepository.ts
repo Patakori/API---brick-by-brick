@@ -16,7 +16,7 @@ export class CreateClientRepository implements ICreateClientRepository {
   async add (client: IClient): Promise<any> {
    return await this.prisma.user.create({
       data:{
-          name: client.username,
+          name: client.name,
           email: client.email,
           password: client.password,
       }

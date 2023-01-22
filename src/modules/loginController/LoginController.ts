@@ -7,16 +7,21 @@ import { LoginUseCase } from "./LoginUseCase";
 
 export class LoginController{
   async handle (request: Request, response: Response){
-    const { email, password }:any = request.body;
+    try{
+      const { email, password }:any = request.body;
 
-    const useCase = new LoginUseCase()
-
-    const result = await useCase.execute({
-      email, 
-      password,
-    })
-
-    return response.json(result)
+      const useCase = new LoginUseCase()
+  
+      const result = await useCase.execute({
+        email, 
+        password,
+      })
+     
+  
+      return response.json(result)
+    }catch(error){
+      console.log("error login")
+   }
 
   }
 }

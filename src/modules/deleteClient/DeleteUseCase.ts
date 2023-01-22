@@ -10,9 +10,12 @@ export class DeleteClientUseCase {
 
     const repo = new DeleteClientRepository(prisma)
 
-
     const deleted = await repo.delete(email) 
 
-    return deleted
+    console.log("tomanocu", deleted)
+
+ 
+
+    return (deleted)
   }
 }

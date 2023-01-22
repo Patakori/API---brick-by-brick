@@ -9,7 +9,6 @@ interface ValidateTokenUseCaseProps{
 export class ValidateTokenUseCase{
   async execute({request, response}:ValidateTokenUseCaseProps){
 
-
     const authHeader = request.headers.authorization
 
     if(!authHeader){
@@ -19,9 +18,11 @@ export class ValidateTokenUseCase{
     const [,token] = authHeader.split(" ")
 
     try{
+  
         const validate = verify(token,"a1df64cba1f711410b6a4a86942971cb")
         if(validate){
-            return response
+          console.log("valido")
+            return (true)
         }
         
     } catch(err){

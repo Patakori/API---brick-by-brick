@@ -23,11 +23,14 @@ export class LoginRepository implements ILoginRepositorys {
   async createRefreshToken(email: string, expiresIn:number):Promise<any>{
     return await this.prisma.refreshToken.create({
       data:{
-          userEmail: email,
           expiresIn: expiresIn,
+          user: {
+            connect: {
+              email: email
+            }
+          }
       }
   })
   }
-  
-  
+
 }

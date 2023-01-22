@@ -16,10 +16,10 @@ import jwt_decode from "jwt-decode";
 //Middleware
 
 // Middleware Errors
-async function verifyErrors(error: any, request:any, response:any, next:any){
-    console.log("aqui no miderros", error)
-    response.sendStatus(500)
-}
+// async function verifyErrors(error: any, request:any, response:any, next:any){
+//     console.log("aqui no miderros", error)
+//     response.sendStatus(500)
+// }
 
 // Middleware Verifica se a conta já existe
 async function verifyExistAccount(request:any, response:any, next:any){
@@ -33,7 +33,7 @@ async function verifyExistAccount(request:any, response:any, next:any){
         }
     })
 
-    console.log(emailExist)
+    // console.log(emailExist)
 
     if(emailExist){
         return response.status(400).json({error: 'Esse e-mail já existe'})

@@ -5,10 +5,21 @@ export class DeleteClientRepository{
   constructor (private readonly prisma: PrismaClient){}
 
   async delete(email:string): Promise<any> {
-    await this.prisma.user.delete({
-      where:{
-        email
-      }
-    })  
+    console.log("emailemailemail", email)
+    try {
+      await this.prisma.refreshToken.deleteMany({
+        where: {
+          userEmail: email
+        }
+      });
+
+      return await this.prisma?.user?.delete({
+        where:{
+          email: email
+        }
+      })
+    } catch (error) {
+      console.log("erro nessa porra",error )
+    }
   }
 }

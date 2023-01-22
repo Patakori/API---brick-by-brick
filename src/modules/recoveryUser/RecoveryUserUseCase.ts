@@ -9,23 +9,25 @@ interface ValidateTokenUseCaseProps{
 }
 export class RecoveryUserUseCase {
   async execute({ request, response }:ValidateTokenUseCaseProps){
-    const authHeader = request.headers.authorization
-    const repo = new RecoveryUserRepository(prisma)
+      const authHeader = request?.headers?.authorization
+      const repo = new RecoveryUserRepository(prisma)
+  
+      if(authHeader){
+        const [,token] = authHeader.split(" ")
+        const decoded:any = jwt_decode(token);
+        const emailecoded = decoded.user.email   
+        const resultUser = await repo.findEmail(emailecoded)
 
-
-    if(authHeader){
-      const [,token] = authHeader.split(" ")
-      const decoded:any = jwt_decode(token);
-      const emailecoded = decoded.user.email   
-      const resultUser = await repo.findEmail(emailecoded)
-
-      const user = {
-        name: resultUser?.name,
-        email: resultUser?.email,
+        
+  
+        const user = {
+          name: resultUser?.name,
+          email: resultUser?.email,
+        }
+  
+        return(user)
+      
       }
-      return (user)
-    
-    }
     
 
   }

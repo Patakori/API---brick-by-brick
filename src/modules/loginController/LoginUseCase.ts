@@ -22,7 +22,6 @@ export class LoginUseCase {
     const repo = new LoginRepository( prisma )
 
     const client: IClient = await repo.findEmailUser(email)
-    console.log("client", client)
     const refreshToken: IRefreshToken = await repo.findEmailRefreshToken(email)
 
     if(!client){
@@ -48,10 +47,14 @@ export class LoginUseCase {
     } )
 
     if(!refreshToken){
-      const expiresIn = dayjs().add(1, 'day').unix()
-      const refreshToken: IRefreshToken = await repo.createRefreshToken(email, expiresIn)
-
-      return ({token, refreshToken})
+      try {
+        const expiresIn = dayjs().add(1, 'day').unix()
+        const refreshToken: IRefreshToken = await repo.createRefreshToken(email, expiresIn)
+  
+        return ({token, refreshToken})
+      } catch (error) {
+        throw new Error("Error RefreshTokenAPI")
+      }
     }
   return ({token, refreshToken})
     

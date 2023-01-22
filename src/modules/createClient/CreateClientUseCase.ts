@@ -5,14 +5,14 @@ import { CreateClientRepository } from "./CreateClientRepository"
 
 export class CreateClientUseCase {
 
-  async execute({password, username, email}:IClient){
+  async execute({password, name, email}:IClient){
 
   const passwordHash = await hash(password, 8)
   const repo = new CreateClientRepository(prisma)
   const verifyEmail = await repo.get(email)
 
   const clientObject:IClient = {
-      username: username,
+      name: name,
       email: email,
       password: passwordHash,
   }
