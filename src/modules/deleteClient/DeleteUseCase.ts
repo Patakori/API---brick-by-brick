@@ -12,10 +12,6 @@ export class DeleteClientUseCase {
 
     const deleted = await repo.delete(email) 
 
-    console.log("tomanocu", deleted)
-
- 
-
     return (deleted)
   }
 }
