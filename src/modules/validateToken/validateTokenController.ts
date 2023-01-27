@@ -11,7 +11,11 @@ export class ValidateTokenController{
         response
       })
 
-      return response.sendStatus(200)
+      if(verifyToken){
+        return response.sendStatus(200)
+      }
+
+      
     } catch (error) {
       console.log("Erro Validate Token")
     }
